@@ -124,7 +124,9 @@ export function EnergyMap({ projects, onSelect, selectedProjectId = null }: { pr
 
     const projectGroup = new THREE.Group(); scene.add(projectGroup);
     const hitTargets: THREE.Object3D[] = [];
-    const objects = new Map<string, { root: THREE.Group; ring: THREE.Mesh; node: THREE.Mesh; tower: THREE.Mesh; baseY: number }>();
+    // tower is typed with its concrete material so the emissiveIntensity write in
+    // the animation loop stays type-checked (plain Mesh.material is Material | Material[]).
+    const objects = new Map<string, { root: THREE.Group; ring: THREE.Mesh; node: THREE.Mesh; tower: THREE.Mesh<THREE.CylinderGeometry, THREE.MeshStandardMaterial>; baseY: number }>();
 
     const rebuild = () => {
       projectGroup.clear(); hitTargets.length = 0; objects.clear();

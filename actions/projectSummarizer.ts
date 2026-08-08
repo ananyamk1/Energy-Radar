@@ -4,12 +4,42 @@ import { z } from "zod";
 import { Client, AddressType } from "@googlemaps/google-maps-services-js";
 
 // Initialize Clients
-const openai = new OpenAI({ apiKey: process.env.OPEN_API_KEY! });
+// Constructed lazily: building the client at module scope throws on import when
+// the key is absent, which takes down every route that transitively imports this file.
+let _openai: OpenAI | null = null;
+function getOpenAI() {
+  if (!_openai) {
+    // OPEN_API_KEY is the legacy name used by this project's .env; prefer the standard one.
+    const apiKey = process.env.OPENAI_API_KEY ?? process.env.OPEN_API_KEY;
+    if (!apiKey) throw new Error("OPENAI_API_KEY (or OPEN_API_KEY) is not set.");
+    _openai = new OpenAI({ apiKey });
+  }
+  return _openai;
+}
+
 const mapsClient = new Client({});
+
+// A sync geocodes every project in the ERCOT report, and many share a county /
+// POI. Caching by query address keeps that from turning into thousands of
+// billable Geocoding calls per run.
+const geoCache = new Map<string, Awaited<ReturnType<typeof geocodeUncached>>>();
 
 // 1. Geolocation Function (FUNC)
 export async function fetchGeo(county: string, state: string, poiLocation: string) {
   const queryAddress = `${poiLocation}, ${county} County, ${state}`;
+
+  if (geoCache.has(queryAddress)) return geoCache.get(queryAddress)!;
+
+  const result = await geocodeUncached(queryAddress, state);
+  geoCache.set(queryAddress, result);
+  return result;
+}
+
+async function geocodeUncached(queryAddress: string, state: string) {
+  if (!process.env.GOOGLE_MAPS_API_KEY) {
+    console.warn("GOOGLE_MAPS_API_KEY is not set — skipping geocoding; coordinates will be unreliable.");
+    return null;
+  }
 
   try {
     const response = await mapsClient.geocode({
@@ -82,7 +112,7 @@ export async function extractProjectData(rawErcotJson: any, maxRetries = 3): Pro
     try {
       console.log(`LLM Extraction Attempt ${attempt}...`);
       
-      const completion = await openai.chat.completions.create({
+      const completion = await getOpenAI().chat.completions.create({
         model: "gpt-4o", 
         messages: messages,
         response_format: { type: "json_object" },
@@ -99,7 +129,13 @@ export async function extractProjectData(rawErcotJson: any, maxRetries = 3): Pro
       const validProjectData = ProjectSchema.parse(parsedJson);
 
       console.log("Success! Data successfully mapped and validated.");
-      return validProjectData;
+
+      // The upsert in syncProjects() conflicts on `id`. An LLM-invented id is not
+      // stable across runs, so every sync would insert duplicates instead of
+      // updating. ERCOT's INR is the real primary key — always prefer it.
+      return rawErcotJson.inr
+        ? { ...validProjectData, id: String(rawErcotJson.inr) }
+        : validProjectData;
 
     } catch (error: any) {
       console.warn(`Attempt ${attempt} failed.`);

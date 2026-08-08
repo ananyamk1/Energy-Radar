@@ -1,21 +1,21 @@
 import { z } from "zod";
 
-// Update these to match your actual EnergyCategory union
+// Must stay in sync with the EnergyCategory union in lib/types.ts — the UI
+// (CategoryIcon, map colors) switches on these exact strings.
 const EnergyCategorySchema = z.enum([
-  "solar",
-  "wind",
-  "battery_storage",
-  "natural_gas",
-  "nuclear",
-  "hydro",
+  "Generation",
+  "Data Center",
+  "Storage",
+  "Transmission",
+  "Renewable",
+  "Industrial",
 ]).describe("The primary energy category or sector this project belongs to.");
 
-// Update these to match your actual Momentum union
+// Must stay in sync with the Momentum union in lib/types.ts.
 const MomentumSchema = z.enum([
-  "accelerating",
-  "steady",
-  "slowing",
-  "stalled",
+  "Accelerating",
+  "Watch",
+  "Stalled",
 ]).describe("The direction of recent activity/interest on this project — whether it's heating up or cooling off.");
 
 export const ProjectSchema = z.object({
