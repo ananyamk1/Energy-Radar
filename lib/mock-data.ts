@@ -1,0 +1,101 @@
+import { Project } from "./types";
+
+export const projects: Project[] = [
+  {
+    id: "houston-power",
+    name: "Houston Power Project",
+    city: "Houston",
+    state: "TX",
+    lat: 29.7604,
+    lng: -95.3698,
+    category: "Generation",
+    technology: "Gas-to-Power",
+    capacityMw: 500,
+    stage: "FEL-1",
+    score: 92,
+    momentum: "Accelerating",
+    confidence: 0.87,
+    signals: 6,
+    updatedMinutesAgo: 4,
+    whyNow: "Three independent project signals appeared within the last 14 days."
+  },
+  {
+    id: "dallas-data",
+    name: "Dallas Data Center Power",
+    city: "Dallas",
+    state: "TX",
+    lat: 32.7767,
+    lng: -96.797,
+    category: "Data Center",
+    technology: "Large Load",
+    capacityMw: 350,
+    stage: "Interconnection",
+    score: 88,
+    momentum: "Accelerating",
+    confidence: 0.91,
+    signals: 5,
+    updatedMinutesAgo: 12,
+    whyNow: "Recent interconnection activity and a large-load signal increased relevance."
+  },
+  {
+    id: "austin-storage",
+    name: "Austin Battery Storage",
+    city: "Austin",
+    state: "TX",
+    lat: 30.2672,
+    lng: -97.7431,
+    category: "Storage",
+    technology: "Battery",
+    capacityMw: 220,
+    stage: "FEED",
+    score: 81,
+    momentum: "Watch",
+    confidence: 0.83,
+    signals: 4,
+    updatedMinutesAgo: 28,
+    whyNow: "Recent permitting activity suggests continued project progression."
+  },
+  {
+    id: "san-antonio-solar",
+    name: "San Antonio Solar Expansion",
+    city: "San Antonio",
+    state: "TX",
+    lat: 29.4241,
+    lng: -98.4936,
+    category: "Renewable",
+    technology: "Solar",
+    capacityMw: 180,
+    stage: "Construction",
+    score: 74,
+    momentum: "Watch",
+    confidence: 0.89,
+    signals: 3,
+    updatedMinutesAgo: 41,
+    whyNow: "Construction activity is the strongest recent signal."
+  },
+  {
+    id: "corpus-transmission",
+    name: "Corpus Christi Transmission",
+    city: "Corpus Christi",
+    state: "TX",
+    lat: 27.8006,
+    lng: -97.3964,
+    category: "Transmission",
+    technology: "High Voltage",
+    capacityMw: 0,
+    stage: "FEED",
+    score: 67,
+    momentum: "Watch",
+    confidence: 0.76,
+    signals: 3,
+    updatedMinutesAgo: 55,
+    whyNow: "Planning and grid-connection signals are active."
+  }
+];
+
+export const signals = [
+  { id: "s1", project: "Houston Power Project", category: "Interconnection", source: "ERCOT", time: "4 min ago", importance: "High" },
+  { id: "s2", project: "Dallas Data Center Power", category: "Large Load", source: "ERCOT", time: "12 min ago", importance: "High" },
+  { id: "s3", project: "Austin Battery Storage", category: "Permit", source: "TCEQ", time: "28 min ago", importance: "Medium" },
+  { id: "s4", project: "San Antonio Solar Expansion", category: "Construction", source: "Public filing", time: "41 min ago", importance: "Medium" }
+];
