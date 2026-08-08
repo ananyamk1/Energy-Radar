@@ -4,7 +4,7 @@ import { z } from "zod";
 import { Client, AddressType } from "@googlemaps/google-maps-services-js";
 
 // Initialize Clients
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({ apiKey: process.env.OPEN_API_KEY! });
 const mapsClient = new Client({});
 
 // 1. Geolocation Function (FUNC)

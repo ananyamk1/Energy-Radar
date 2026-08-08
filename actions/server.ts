@@ -19,6 +19,8 @@ export async function getClient()
 
 export async function getProjects(): Promise<z.infer<typeof ProjectArray>>
 {
+
+    await syncProjects();
     const client = await getClient();
 
     const { data, error} = await client.from("projects").select("*")
@@ -82,11 +84,12 @@ export async function scrapeProjects(): Promise<z.infer<typeof ProjectArray>> {
   const uncleanData = await fetchProjects();
 
   // Wrap the .map in Promise.all and await the result
+  console.log(`[UNCLEAN_DATA]: ${JSON.stringify(uncleanData)}`);
   const cleanData = await Promise.all(
     uncleanData.map(async (e) => {
       // Stringifying isn't strictly necessary if extractProjectData accepts an object, 
       // but keeping it as you had it:
-      return await extractProjectData(JSON.stringify(e, null, 2));
+      return await extractProjectData(e);
     })
   );
 

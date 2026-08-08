@@ -16,6 +16,9 @@ export default function Overview() {
     const q = query.trim().toLowerCase();
     return q ? projects.filter(p => `${p.name} ${p.city} ${p.state} ${p.technology}`.toLowerCase().includes(q)) : projects;
   }, [projects, query]);
+
+  console.log(projects);
+
   const accelerating = projects.filter(p => p.momentum === "Accelerating").length;
   const newSignals = projects.reduce((sum,p)=>sum+p.signals,0);
 

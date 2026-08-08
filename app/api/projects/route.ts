@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { projects } from "@/lib/mock-data";
+import { getProjects } from "@/actions/server";
+
 
 export async function GET() {
-  return NextResponse.json(projects, {
+  return NextResponse.json(getProjects(), {
     headers: {
       "Cache-Control": "no-store"
     }
