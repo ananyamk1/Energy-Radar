@@ -20,6 +20,26 @@ export async function getClient()
     return createClient(url, key);
 }
 
+// Writes bypass RLS via the service-role key. This must never reach the browser,
+// hence no NEXT_PUBLIC_ prefix — it is only ever read inside route handlers.
+export async function getAdminClient() {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!url)
+        throw new Error("Supabase env var missing: set NEXT_PUBLIC_SUPABASE_URL.");
+
+    if (!serviceKey)
+        throw new Error(
+            "SUPABASE_SERVICE_ROLE_KEY is not set. Writes run under RLS with the anon key and will be rejected. " +
+            "Add the service-role key from Supabase -> Project Settings -> API."
+        );
+
+    return createClient(url, serviceKey, {
+        auth: { persistSession: false, autoRefreshToken: false }
+    });
+}
+
 // Read-only. Does NOT scrape — syncProjects() re-downloads the ERCOT report and
 // runs one LLM call per project, so calling it per request made every poll a
 // multi-minute, multi-dollar operation. Trigger it explicitly via POST /api/projects.
@@ -65,9 +85,9 @@ export async function getSignals(projectID: string): Promise<z.infer<typeof Sign
 
 export async function addSignals(signals: z.infer<typeof SignalArray>)
 {
-    const client = await getClient();
+    const client = await getAdminClient();
 
-    const { data, error } = await client.from("signals").insert(signals);
+    const { error } = await client.from("signals").insert(signals);
 
     if (error)
         throw error;
@@ -77,7 +97,7 @@ export async function addSignals(signals: z.infer<typeof SignalArray>)
 
 export async function addProjects(projects: z.infer<typeof ProjectArray>)
 {
-    const client = await getClient();
+    const client = await getAdminClient();
 
     const { error } = await client.from("projects").insert(projects);
 
@@ -139,6 +159,10 @@ export async function scrapeProjects(limit?: number): Promise<z.infer<typeof Pro
 const UPSERT_CHUNK_SIZE = 500;
 
 export async function syncProjects(limit?: number) {
+    // Validate credentials before the expensive work — otherwise a missing key
+    // is only discovered after a full scrape and ~1800 LLM calls.
+    const client = await getAdminClient();
+
     console.log("Starting project scrape...");
     const scrapedProjects = await scrapeProjects(limit);
 
@@ -154,8 +178,6 @@ export async function syncProjects(limit?: number) {
     if (deduped.length !== scrapedProjects.length) {
         console.warn(`[SYNC] Collapsed ${scrapedProjects.length - deduped.length} duplicate project ids.`);
     }
-
-    const client = await getClient();
 
     console.log(`Upserting ${deduped.length} projects to the database...`);
 

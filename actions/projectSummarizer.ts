@@ -19,6 +19,9 @@ function getOpenAI() {
 
 const mapsClient = new Client({});
 
+// Derived from the Zod schema so the prompt can never drift from validation.
+const PROJECT_JSON_SCHEMA = z.toJSONSchema(ProjectSchema);
+
 // A sync geocodes every project in the ERCOT report, and many share a county /
 // POI. Caching by query address keeps that from turning into thousands of
 // billable Geocoding calls per run.
@@ -91,15 +94,21 @@ export async function extractProjectData(rawErcotJson: any, maxRetries = 3): Pro
   };
 
   // Step B: Set up the LLM Conversation
+  // The schema is injected verbatim. Without it the model has to guess the field
+  // names and enum values, which burned all three retries on every project.
   const systemPrompt = `
-    You are an expert energy infrastructure analyst. 
+    You are an expert energy infrastructure analyst.
     Transform the provided raw ERCOT project data and external context into a strict JSON object.
-    
+
     Rules for synthesis:
     - Assess the 'stage' based on the completion of SS, FIS, and IA, plus energization dates.
     - Calculate a 'score' (0-100) based on project maturity.
     - Generate a concise, analyst-style 'whyNow' summary.
-    - The output MUST exactly match the requested JSON schema.
+    - Use externalData.location for 'city', 'lat' and 'lng' when it is present.
+    - Every field is required. Use the enum values exactly as written; do not invent new ones.
+    - The output MUST exactly match this JSON schema:
+
+    ${JSON.stringify(PROJECT_JSON_SCHEMA)}
   `;
 
   let messages: any[] = [
