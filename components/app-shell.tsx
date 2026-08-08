@@ -1,80 +1,67 @@
- "use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Building2, LayoutDashboard, Radio, Settings, Zap } from "lucide-react";
+import { Activity, Radio, Search, Zap } from "lucide-react";
 
 const nav = [
-  { href: "/", label: "Overview", icon: LayoutDashboard },
-  { href: "/projects", label: "Projects", icon: Zap },
-  { href: "/signals", label: "Signals", icon: Radio }
+  { href: "/", label: "Radar" },
+  { href: "/projects", label: "Projects" },
+  { href: "/signals", label: "Signals" },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-[#07100e] text-[#edf5f1]">
-      <aside className="fixed inset-y-0 left-0 hidden w-60 border-r border-white/8 bg-[#09130f]/90 px-4 py-5 backdrop-blur-xl lg:block">
-        <Link href="/" className="mb-8 flex items-center gap-3 px-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#7cf2b2] text-[#07100e]">
-            <Zap size={19} fill="currentColor" />
-          </span>
-          <div>
-            <div className="text-sm font-semibold tracking-wide">ENERGY RADAR</div>
-            <div className="text-[11px] text-white/40">Infrastructure intelligence</div>
-          </div>
-        </Link>
+    <div className="min-h-screen bg-[#07100e] text-[#f4f6f2]">
+      <header className="sticky top-0 z-[900] border-b border-white/10 bg-[#07100e]/88 backdrop-blur-xl">
+        <div className="mx-auto flex h-[66px] max-w-[1600px] items-center gap-8 px-5 lg:px-8">
+          <Link href="/" className="flex shrink-0 items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#d9b86c]/60 bg-[#d9b86c] text-[#07100e]">
+              <Zap size={15} fill="currentColor" />
+            </span>
+            <span className="text-[13px] font-semibold tracking-[.16em]">ENERGY RADAR</span>
+          </Link>
 
-        <div className="space-y-1">
-          {nav.map(({ href, label, icon: Icon }) => {
-            const active = pathname === href;
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
-                  active ? "bg-white/8 text-white" : "text-white/55 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                <Icon size={17} />
-                {label}
-              </Link>
-            );
-          })}
-        </div>
+          <nav className="hidden items-center gap-7 md:flex">
+            {nav.map(({ href, label }) => {
+              const active = pathname === href;
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`relative py-5 text-[11px] font-medium uppercase tracking-[.16em] transition ${
+                    active ? "text-white" : "text-white/42 hover:text-white/80"
+                  }`}
+                >
+                  {label}
+                  {active && <span className="absolute bottom-0 left-0 right-0 h-px bg-[#d9b86c]" />}
+                </Link>
+              );
+            })}
+          </nav>
 
-        <div className="mt-8 px-3 text-[10px] font-semibold uppercase tracking-[.18em] text-white/30">
-          Live sources
-        </div>
-        <div className="mt-3 space-y-2 px-3">
-          {["ERCOT", "TCEQ"].map((source) => (
-            <div key={source} className="flex items-center justify-between text-xs text-white/55">
-              <span>{source}</span>
-              <span className="h-1.5 w-1.5 rounded-full bg-[#7cf2b2]" />
+          <div className="ml-auto flex items-center gap-3">
+            <div className="hidden items-center gap-2 border-l border-white/10 pl-4 text-[10px] uppercase tracking-[.14em] text-white/40 sm:flex">
+              <Radio size={13} /> Live sources
             </div>
-          ))}
-        </div>
-
-        <div className="absolute bottom-5 left-4 right-4">
-          <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/[.025] px-3 py-3 text-xs text-white/45">
-            <Settings size={15} />
-            System status
+            <div className="flex items-center gap-2 text-[10px] uppercase tracking-[.14em] text-white/55">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#83e5b0] shadow-[0_0_10px_rgba(131,229,176,.8)]" />
+              Live
+            </div>
           </div>
         </div>
-      </aside>
+      </header>
 
-      <main className="lg:pl-60">{children}</main>
+      <main>{children}</main>
 
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/8 bg-[#09130f]/95 p-2 backdrop-blur-xl lg:hidden">
-        <div className="mx-auto flex max-w-md justify-around">
-          {nav.map(({ href, label, icon: Icon }) => (
-            <Link key={href} href={href} className={`flex flex-col items-center gap-1 px-4 py-1.5 text-[10px] ${pathname === href ? "text-[#7cf2b2]" : "text-white/45"}`}>
-              <Icon size={17} />
-              {label}
-            </Link>
-          ))}
-        </div>
+      <div className="fixed bottom-4 left-1/2 z-[850] flex -translate-x-1/2 items-center gap-1 rounded-full border border-white/10 bg-[#07100e]/85 p-1 shadow-2xl backdrop-blur-xl md:hidden">
+        {nav.map(({ href, label }) => (
+          <Link key={href} href={href} className={`rounded-full px-4 py-2 text-[10px] uppercase tracking-[.12em] ${pathname === href ? "bg-white/10 text-white" : "text-white/45"}`}>
+            {label}
+          </Link>
+        ))}
       </div>
     </div>
   );

@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "leaflet/dist/leaflet.css";
 
 :root {
   --bg: #07100e;
@@ -8,40 +7,107 @@
   --line: rgba(255,255,255,.08);
   --muted: #8b9c96;
   --text: #edf5f1;
-  --accent: #7cf2b2;
+  --accent: #f0b85b;
 }
 
 * { box-sizing: border-box; }
-
 html, body { min-height: 100%; }
-
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at 75% 0%, rgba(64, 170, 112, .10), transparent 28rem),
-    var(--bg);
+  background: #07100e;
   color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.leaflet-container {
-  width: 100%;
-  height: 100%;
-  background: #0a1714;
-  font-family: Arial, Helvetica, sans-serif;
+.energy-scene-shell {
+  position: relative;
+  min-height: 560px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.10);
+  background: #e7e7e1;
+  box-shadow: 0 30px 80px rgba(0,0,0,.25);
 }
 
-.leaflet-control-zoom a {
-  background: #0c1b17 !important;
-  color: #e9f6f0 !important;
-  border-color: rgba(255,255,255,.1) !important;
+.energy-scene {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+}
+.energy-scene:active { cursor: grabbing; }
+.energy-scene canvas { display: block; width: 100%; height: 100%; }
+
+.energy-scene-overlay {
+  pointer-events: none;
+  position: absolute;
+  inset: 0 0 auto 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 22px;
+  background: linear-gradient(180deg, rgba(4,10,10,.32), transparent 78%);
+}
+.energy-scene-kicker {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .2em;
+  color: rgba(255,255,255,.65);
+}
+.energy-scene-title {
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+.energy-scene-hint {
+  margin-top: 2px;
+  font-size: 11px;
+  color: rgba(255,255,255,.55);
 }
 
-.leaflet-popup-content-wrapper,
-.leaflet-popup-tip {
-  background: #0b1714;
+.energy-hover-card {
+  position: absolute;
+  pointer-events: none;
+  right: 18px;
+  bottom: 18px;
+  width: 240px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(7,16,14,.88);
   color: #edf5f1;
-  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 20px 45px rgba(0,0,0,.25);
+  backdrop-filter: blur(14px);
 }
 
-.leaflet-popup-content { margin: 14px; }
+@media (max-width: 640px) {
+  .energy-scene-shell { min-height: 500px; }
+  .energy-scene-overlay { padding: 15px; }
+  .energy-scene-hint { display: none; }
+}
+
+.energy-map-legend {
+  position: absolute;
+  left: 22px;
+  bottom: 22px;
+  display: flex;
+  gap: 14px;
+  padding: 9px 11px;
+  border: 1px solid rgba(0,0,0,.12);
+  background: rgba(244,243,237,.78);
+  color: rgba(17,23,21,.62);
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  backdrop-filter: blur(12px);
+}
+.energy-map-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend-dot { width: 6px; height: 6px; border-radius: 999px; display: inline-block; }
+.legend-dot.accelerating { background: #c69f48; box-shadow: 0 0 8px rgba(198,159,72,.7); }
+.legend-dot.watch { background: #718c83; }
+.legend-dot.stalled { background: #a7645e; }
+
+.project-intel-panel { animation: panel-in .42s cubic-bezier(.22,.75,.22,1); }
+@keyframes panel-in { from { transform: translateX(100%); opacity: .7; } to { transform: translateX(0); opacity: 1; } }
+
+@media (max-width: 640px) {
+  .energy-map-legend { left: 15px; bottom: 15px; gap: 8px; font-size: 8px; }
+}
