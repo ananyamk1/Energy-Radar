@@ -1,7 +1,6 @@
 # Energy Radar — Project Radar
 
 **Live Demo:** https://candid-ai-hackathon.vercel.app/
-**GitHub:** https://github.com/JaidenKhosla/candidaihackathon
 
 ## What we were trying to solve
 
